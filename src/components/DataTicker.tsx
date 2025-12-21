@@ -50,7 +50,7 @@ export function DataTicker() {
   const duplicatedItems = [...tickerItems, ...tickerItems];
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-terminal-orange text-white font-mono font-bold py-2.5 overflow-hidden shadow-lg">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-transparent text-terminal-text font-mono font-bold py-2.5 overflow-hidden">
       <div className="flex animate-marquee whitespace-nowrap">
         {duplicatedItems.map((item, index) => (
           <span key={index} className="mx-8 flex-shrink-0">
