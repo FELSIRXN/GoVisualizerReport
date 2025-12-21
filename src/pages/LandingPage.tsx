@@ -20,7 +20,7 @@ export function LandingPage() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-2xl md:text-4xl font-bold text-terminal-text mb-4 animate-typing overflow-hidden whitespace-nowrap">
-            Payment Gateway Report Analyzer
+            Enhance Your Financial Reporting
           </h2>
           <p className="text-terminal-text/60 text-lg font-light">
             Upload your CSV or XLSX sales reports to generate interactive dashboards and performance analysis
