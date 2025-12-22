@@ -149,6 +149,7 @@ export function DashboardPage() {
                     border: '1px solid #333',
                     color: '#e5e5e5',
                   }}
+                  cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
                 />
                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 <Line
@@ -191,6 +192,7 @@ export function DashboardPage() {
                     border: '1px solid #333',
                     color: '#e5e5e5',
                   }}
+                  cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
                 />
                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 <Bar
@@ -229,6 +231,7 @@ export function DashboardPage() {
                     border: '1px solid #333',
                     color: '#e5e5e5',
                   }}
+                  cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
                 />
                 <Bar 
                   dataKey="tpv" 

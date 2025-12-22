@@ -1,4 +1,5 @@
 import { PaymentRecord } from '../types';
+import { ExchangeRates, convertToUSD } from '../services/currencyService';
 
 // Column mapping: variations -> standardized name
 const COLUMN_MAPPINGS: Record<string, string> = {
@@ -90,24 +91,61 @@ export function normalizeHeaders(headers: string[]): Record<string, string> {
   return mapping;
 }
 
-export function mapColumns(row: any, headerMapping: Record<string, string>): PaymentRecord {
+export function mapColumns(
+  row: any, 
+  headerMapping: Record<string, string>,
+  exchangeRates?: ExchangeRates
+): PaymentRecord {
   const mapped: any = {};
+  
+  // Extract currency - check original column names and normalized ones
+  let currency: string | undefined;
+  for (const [original, normalized] of Object.entries(headerMapping)) {
+    if (normalized === 'currency' && row[original] !== undefined) {
+      currency = row[original];
+      break;
+    }
+  }
+  // Fallback to common column name variations
+  if (!currency) {
+    currency = row.currency || row['Entity Reporting Currency'] || row['Reporting Currency'] || row['entity reporting currency'] || row['reporting currency'];
+  }
+  
+  const sourceType = row._sourceType || 'unknown';
+  
+  // Normalize currency string
+  const normalizedCurrency = currency ? (typeof currency === 'string' ? currency.trim().toUpperCase() : String(currency).toUpperCase()) : undefined;
   
   // Map known columns
   Object.entries(headerMapping).forEach(([original, normalized]) => {
     if (row[original] !== undefined) {
       // Parse numbers for financial columns
       if (['tpv', 'netRevenue', 'directCost', 'schemeFees', 'mraCost', 'grossProfit', 'transactionCount'].includes(normalized)) {
-        mapped[normalized] = parseNumber(row[original]);
+        let value = parseNumber(row[original]);
+        
+        // Convert currency for all financial columns EXCEPT transactionCount
+        if (normalized !== 'transactionCount' && exchangeRates && normalizedCurrency) {
+          value = convertToUSD(value, normalizedCurrency, exchangeRates);
+        }
+        
+        mapped[normalized] = value;
       } else {
         mapped[normalized] = row[original];
       }
     }
   });
   
-  // Preserve other columns
+  // Add sourceType
+  mapped.sourceType = sourceType;
+  
+  // Add normalized currency field
+  if (normalizedCurrency) {
+    mapped.currency = normalizedCurrency;
+  }
+  
+  // Preserve other columns (except internal ones)
   Object.keys(row).forEach(key => {
-    if (!headerMapping[key]) {
+    if (!headerMapping[key] && !key.startsWith('_')) {
       mapped[key] = row[key];
     }
   });
@@ -115,7 +153,10 @@ export function mapColumns(row: any, headerMapping: Record<string, string>): Pay
   return mapped as PaymentRecord;
 }
 
-export function consolidateData(dataArrays: any[][]): PaymentRecord[] {
+export function consolidateData(
+  dataArrays: any[][],
+  exchangeRates?: ExchangeRates
+): PaymentRecord[] {
   if (dataArrays.length === 0) return [];
   
   // Get headers from first file
@@ -136,7 +177,7 @@ export function consolidateData(dataArrays: any[][]): PaymentRecord[] {
     const currentMapping = normalizeHeaders(currentHeaders);
     
     data.forEach((row) => {
-      const mapped = mapColumns(row, currentMapping);
+      const mapped = mapColumns(row, currentMapping, exchangeRates);
       allRecords.push(mapped);
     });
   });

@@ -14,6 +14,7 @@ export interface PaymentRecord {
   channel?: string;
   currency?: string;
   country?: string;
+  sourceType?: 'merchant' | 'channel' | 'unknown'; // Sheet type identifier
   [key: string]: any; // For any other columns
 }
 

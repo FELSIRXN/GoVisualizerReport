@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { PaymentRecord, ConsolidatedData, Metrics, MonthlyAggregation, EntityPerformance, DistributionData } from '../types';
 import { parseFile } from '../utils/fileParser';
 import { consolidateData } from '../utils/dataNormalizer';
+import { fetchExchangeRates, ExchangeRates } from '../services/currencyService';
 
 interface DataStore {
   rawData: any[][];
@@ -10,6 +11,7 @@ interface DataStore {
   dateRange: { min: Date | null; max: Date | null };
   isLoading: boolean;
   error: string | null;
+  exchangeRates: ExchangeRates | null;
   
   // Actions
   processFiles: (files: File[]) => Promise<void>;
@@ -42,11 +44,24 @@ export const useDataStore = create<DataStore>((set, get) => ({
   dateRange: { min: null, max: null },
   isLoading: false,
   error: null,
+  exchangeRates: null,
 
   processFiles: async (files: File[]) => {
     set({ isLoading: true, error: null });
     
     try {
+      // Fetch exchange rates first
+      let rates = get().exchangeRates;
+      if (!rates) {
+        try {
+          rates = await fetchExchangeRates();
+          set({ exchangeRates: rates });
+        } catch (rateError) {
+          console.warn('Failed to fetch exchange rates, proceeding without conversion:', rateError);
+          // Continue without rates - amounts will not be converted
+        }
+      }
+      
       const dataArrays: any[][] = [];
       
       // Parse all files
@@ -55,8 +70,8 @@ export const useDataStore = create<DataStore>((set, get) => ({
         dataArrays.push(data);
       }
       
-      // Consolidate data
-      const consolidated = consolidateData(dataArrays);
+      // Consolidate data with exchange rates
+      const consolidated = consolidateData(dataArrays, rates || undefined);
       
       // Calculate date range
       const dates = consolidated
@@ -255,6 +270,7 @@ export const useDataStore = create<DataStore>((set, get) => ({
       metrics: null,
       dateRange: { min: null, max: null },
       error: null,
+      // Keep exchangeRates cached across resets
     });
   },
 }));

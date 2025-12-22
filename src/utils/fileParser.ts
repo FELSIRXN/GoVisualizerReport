@@ -36,10 +36,35 @@ export async function parseXLSX(file: File): Promise<any[]> {
       try {
         const data = e.target?.result;
         const workbook = XLSX.read(data, { type: 'binary' });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: null });
-        resolve(jsonData);
+        
+        // Iterate through all sheets
+        const allData: any[] = [];
+        
+        workbook.SheetNames.forEach((sheetName) => {
+          // Identify sheet type based on name
+          const sheetNameLower = sheetName.toLowerCase();
+          let sourceType: 'merchant' | 'channel' | 'unknown' = 'unknown';
+          
+          if (sheetNameLower.includes('merchant')) {
+            sourceType = 'merchant';
+          } else if (sheetNameLower.includes('channel')) {
+            sourceType = 'channel';
+          }
+          
+          // Skip unknown sheets (or include them - for now we include all)
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: null }) as any[];
+          
+          // Add sourceType to each row
+          jsonData.forEach((row) => {
+            row._sourceType = sourceType;
+            row._sheetName = sheetName;
+          });
+          
+          allData.push(...jsonData);
+        });
+        
+        resolve(allData);
       } catch (error) {
         reject(error);
       }
