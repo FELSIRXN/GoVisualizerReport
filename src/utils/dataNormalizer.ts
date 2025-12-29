@@ -138,9 +138,20 @@ export function mapColumns(
   // Add sourceType
   mapped.sourceType = sourceType;
   
-  // Add normalized currency field
+  // Add normalized currency field - try to preserve original if normalized is missing
   if (normalizedCurrency) {
     mapped.currency = normalizedCurrency;
+  } else {
+    // Try to extract currency from preserved columns as fallback
+    const fallbackCurrency = row.currency || 
+                             row['Entity Reporting Currency'] || 
+                             row['Reporting Currency'] ||
+                             row['entity reporting currency'] ||
+                             row['reporting currency'] ||
+                             row['Currency'];
+    if (fallbackCurrency && typeof fallbackCurrency === 'string' && fallbackCurrency.trim() !== '') {
+      mapped.currency = fallbackCurrency.trim().toUpperCase();
+    }
   }
   
   // Preserve other columns (except internal ones)

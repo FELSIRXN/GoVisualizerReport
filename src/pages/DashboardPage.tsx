@@ -299,14 +299,15 @@ export function DashboardPage() {
           )}
 
           {/* Distribution Pie Chart */}
-          <Card className="bg-[#1a1a1a] animate-fadeInUp" style={{ animationDelay: '3500ms', animationDuration: '1s' }}>
-            <CardHeader>
-              <CardTitle className="text-terminal-text font-semibold uppercase tracking-wider text-sm">
-                TPV Distribution by {currencyDistribution.length > 0 ? 'Currency' : 'Country'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+          {distributionData.length > 0 && (
+            <Card className="bg-[#1a1a1a] animate-fadeInUp" style={{ animationDelay: '3500ms', animationDuration: '1s' }}>
+              <CardHeader>
+                <CardTitle className="text-terminal-text font-semibold uppercase tracking-wider text-sm">
+                  TPV Distribution by {currencyDistribution.length > 0 ? 'Currency' : 'Country'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
                   data={distributionData}
@@ -333,9 +334,10 @@ export function DashboardPage() {
                   }}
                 />
               </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </TerminalLayout>

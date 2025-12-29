@@ -307,14 +307,38 @@ export const useDataStore = create<DataStore>((set, get) => ({
     const distributionMap = new Map<string, number>();
     
     processedData.forEach(record => {
-      const key = record[by] || 'Unknown';
-      const existing = distributionMap.get(key) || 0;
-      distributionMap.set(key, existing + (record.tpv || 0));
+      // Get the key value, checking multiple possible field names
+      let key: string | undefined;
+      
+      if (by === 'currency') {
+        // Check normalized currency first, then try other variations
+        key = record.currency || 
+              (record as any)['Entity Reporting Currency'] || 
+              (record as any)['Reporting Currency'] ||
+              (record as any)['entity reporting currency'] ||
+              (record as any)['reporting currency'] ||
+              (record as any)['Currency'];
+      } else {
+        key = record.country || 
+              (record as any)['Merchant Country'] ||
+              (record as any)['merchant country'] ||
+              (record as any)['Country'];
+      }
+      
+      // Only include records with valid keys (skip empty, null, undefined, or 'Unknown')
+      if (key && key.trim() !== '' && key.trim().toLowerCase() !== 'unknown') {
+        const normalizedKey = typeof key === 'string' ? key.trim().toUpperCase() : String(key);
+        const existing = distributionMap.get(normalizedKey) || 0;
+        distributionMap.set(normalizedKey, existing + (record.tpv || 0));
+      }
     });
     
-    return Array.from(distributionMap.entries())
+    const result = Array.from(distributionMap.entries())
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value);
+    
+    // If we have valid results, return them. Otherwise return empty array.
+    return result;
   },
 
   reset: () => {
