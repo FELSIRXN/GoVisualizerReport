@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { TerminalLayout } from '../components/TerminalLayout';
 import { FileUploader } from '../components/FileUploader';
 import { useDataStore } from '../store/useDataStore';
+import { Card, CardContent } from '../components/ui/card';
 
 export function LandingPage() {
   const navigate = useNavigate();
@@ -29,23 +30,25 @@ export function LandingPage() {
 
         <FileUploader />
 
-        <div className="mt-12 p-6 border border-terminal-border rounded-lg bg-[#1a1a1a] hover:border-terminal-text/30 transition-colors">
-          <h3 className="text-terminal-text font-semibold mb-4">Supported File Formats:</h3>
-          <ul className="space-y-2 text-terminal-text/70 text-sm">
-            <li className="flex items-center gap-2">
-              <span className="text-terminal-text">✓</span>
-              CSV files (.csv)
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="text-terminal-text">✓</span>
-              Excel files (.xlsx, .xls)
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="text-terminal-text">✓</span>
-              Multiple file uploads (automatically consolidated)
-            </li>
-          </ul>
-        </div>
+        <Card className="mt-12 bg-[#1a1a1a]">
+          <CardContent className="p-6">
+            <h3 className="text-terminal-text font-semibold mb-4">Supported File Formats:</h3>
+            <ul className="space-y-2 text-terminal-text/70 text-sm">
+              <li className="flex items-center gap-2">
+                <span className="text-terminal-text">✓</span>
+                CSV files (.csv)
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-terminal-text">✓</span>
+                Excel files (.xlsx, .xls)
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-terminal-text">✓</span>
+                Multiple file uploads (automatically consolidated)
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
       </div>
     </TerminalLayout>
   );

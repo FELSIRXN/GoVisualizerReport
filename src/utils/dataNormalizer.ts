@@ -163,13 +163,10 @@ export function consolidateData(
   const firstData = dataArrays[0];
   if (firstData.length === 0) return [];
   
-  const firstHeaders = Object.keys(firstData[0]);
-  const headerMapping = normalizeHeaders(firstHeaders);
-  
   // Process all data arrays
   const allRecords: PaymentRecord[] = [];
   
-  dataArrays.forEach((data, fileIndex) => {
+  dataArrays.forEach((data) => {
     if (data.length === 0) return;
     
     // Normalize headers for this file (in case headers differ slightly)

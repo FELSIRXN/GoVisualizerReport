@@ -19,12 +19,14 @@ import { TerminalLayout } from '../components/TerminalLayout';
 import { KPICard } from '../components/KPICard';
 import { useDataStore } from '../store/useDataStore';
 import { FileText, ArrowLeft } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 
 const COLORS = ['#ffffff', '#d4d4d4', '#a3a3a3', '#737373', '#525252', '#404040'];
 
 export function DashboardPage() {
   const navigate = useNavigate();
-  const { metrics, dateRange, getMonthlyAggregations, getTopEntities, getTPVDistribution, reset } = useDataStore();
+  const { metrics, dateRange, getMonthlyAggregations, getTopMerchants, getTopChannels, getTPVDistribution, reset } = useDataStore();
 
   useEffect(() => {
     if (!metrics) {
@@ -42,7 +44,8 @@ export function DashboardPage() {
   };
 
   const monthlyData = getMonthlyAggregations();
-  const topEntities = getTopEntities(10);
+  const topMerchants = getTopMerchants(10);
+  const topChannels = getTopChannels(10);
   const currencyDistribution = getTPVDistribution('currency');
   const countryDistribution = getTPVDistribution('country');
   const distributionData = currencyDistribution.length > 0 ? currencyDistribution : countryDistribution;
@@ -64,32 +67,34 @@ export function DashboardPage() {
     <TerminalLayout>
       <div className="space-y-8">
         {/* Control Panel Header */}
-        <div className="border border-terminal-border p-4 rounded-sm bg-[#1a1a1a] hover:border-terminal-text/30 transition-colors animate-fadeInUp" style={{ animationDelay: '0ms', animationDuration: '1s' }}>
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-terminal-text mb-1">Control Panel</h2>
-              <p className="text-terminal-text/60 text-sm">
-                Date Range: {formatDate(dateRange.min)} → {formatDate(dateRange.max)}
-              </p>
+        <Card className="bg-[#1a1a1a] animate-fadeInUp" style={{ animationDelay: '0ms', animationDuration: '1s' }}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-terminal-text mb-1">Control Panel</h2>
+                <p className="text-terminal-text/60 text-sm">
+                  Date Range: {formatDate(dateRange.min)} → {formatDate(dateRange.max)}
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={handleBack}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Upload New File
+                </Button>
+                <Button
+                  variant="default"
+                  onClick={() => navigate('/report')}
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  View Report
+                </Button>
+              </div>
             </div>
-            <div className="flex gap-3">
-              <button
-                onClick={handleBack}
-                className="flex items-center gap-2 px-4 py-2 border border-terminal-border text-terminal-text/80 hover:bg-white/5 transition-colors rounded-sm text-sm font-medium"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Upload New File
-              </button>
-              <button
-                onClick={() => navigate('/report')}
-                className="flex items-center gap-2 px-4 py-2 bg-white text-black hover:bg-gray-200 transition-colors rounded-sm text-sm font-bold"
-              >
-                <FileText className="h-4 w-4" />
-                View Report
-              </button>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -136,9 +141,12 @@ export function DashboardPage() {
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Trend Line Chart */}
-          <div className="border border-terminal-border p-6 rounded-sm bg-[#1a1a1a] hover:border-terminal-text/30 transition-colors animate-fadeInUp" style={{ animationDelay: '2000ms', animationDuration: '1s' }}>
-            <h3 className="text-terminal-text font-semibold mb-6 uppercase tracking-wider text-sm">TPV vs Net Revenue Trend</h3>
-            <ResponsiveContainer width="100%" height={300}>
+          <Card className="bg-[#1a1a1a] animate-fadeInUp" style={{ animationDelay: '2000ms', animationDuration: '1s' }}>
+            <CardHeader>
+              <CardTitle className="text-terminal-text font-semibold uppercase tracking-wider text-sm">TPV vs Net Revenue Trend</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
               <LineChart data={monthlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                 <XAxis dataKey="month" stroke="#666" fontSize={12} tickLine={false} />
@@ -175,13 +183,17 @@ export function DashboardPage() {
                   animationEasing="ease-out"
                 />
               </LineChart>
-            </ResponsiveContainer>
-          </div>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
 
           {/* Profitability Composition */}
-          <div className="border border-terminal-border p-6 rounded-sm bg-[#1a1a1a] hover:border-terminal-text/30 transition-colors animate-fadeInUp" style={{ animationDelay: '2500ms', animationDuration: '1s' }}>
-            <h3 className="text-terminal-text font-semibold mb-6 uppercase tracking-wider text-sm">Profitability Composition</h3>
-            <ResponsiveContainer width="100%" height={300}>
+          <Card className="bg-[#1a1a1a] animate-fadeInUp" style={{ animationDelay: '2500ms', animationDuration: '1s' }}>
+            <CardHeader>
+              <CardTitle className="text-terminal-text font-semibold uppercase tracking-wider text-sm">Profitability Composition</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
               <BarChart data={profitabilityData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                 <XAxis dataKey="month" stroke="#666" fontSize={12} tickLine={false} />
@@ -214,43 +226,87 @@ export function DashboardPage() {
                   animationEasing="ease-out"
                 />
               </BarChart>
-            </ResponsiveContainer>
-          </div>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
 
-          {/* Top Entities */}
-          <div className="border border-terminal-border p-6 rounded-sm bg-[#1a1a1a] hover:border-terminal-text/30 transition-colors animate-fadeInUp" style={{ animationDelay: '3000ms', animationDuration: '1s' }}>
-            <h3 className="text-terminal-text font-semibold mb-6 uppercase tracking-wider text-sm">Top 10 Channels/Merchants by TPV</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={topEntities} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis type="number" stroke="#666" fontSize={12} tickLine={false} />
-                <YAxis dataKey="name" type="category" stroke="#666" width={100} fontSize={12} tickLine={false} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#1a1a1a',
-                    border: '1px solid #333',
-                    color: '#e5e5e5',
-                  }}
-                  cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
-                />
-                <Bar 
-                  dataKey="tpv" 
-                  fill="#ffffff" 
-                  name="TPV"
-                  isAnimationActive={true}
-                  animationDuration={4000}
-                  animationEasing="ease-out"
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {/* Top Merchants */}
+          {topMerchants.length > 0 && (
+            <Card className="bg-[#1a1a1a] animate-fadeInUp" style={{ animationDelay: '3000ms', animationDuration: '1s' }}>
+              <CardHeader>
+                <CardTitle className="text-terminal-text font-semibold uppercase tracking-wider text-sm">Top 10 Merchants by TPV</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={topMerchants} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <XAxis type="number" stroke="#666" fontSize={12} tickLine={false} />
+                  <YAxis dataKey="name" type="category" stroke="#666" width={100} fontSize={12} tickLine={false} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1a1a1a',
+                      border: '1px solid #333',
+                      color: '#e5e5e5',
+                    }}
+                    cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+                  />
+                  <Bar 
+                    dataKey="tpv" 
+                    fill="#ffffff" 
+                    name="TPV"
+                    isAnimationActive={true}
+                    animationDuration={4000}
+                    animationEasing="ease-out"
+                  />
+                </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Top Channels */}
+          {topChannels.length > 0 && (
+            <Card className="bg-[#1a1a1a] animate-fadeInUp" style={{ animationDelay: '3500ms', animationDuration: '1s' }}>
+              <CardHeader>
+                <CardTitle className="text-terminal-text font-semibold uppercase tracking-wider text-sm">Top 10 Channels by TPV</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={topChannels} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <XAxis type="number" stroke="#666" fontSize={12} tickLine={false} />
+                  <YAxis dataKey="name" type="category" stroke="#666" width={100} fontSize={12} tickLine={false} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1a1a1a',
+                      border: '1px solid #333',
+                      color: '#e5e5e5',
+                    }}
+                    cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+                  />
+                  <Bar 
+                    dataKey="tpv" 
+                    fill="#ffffff" 
+                    name="TPV"
+                    isAnimationActive={true}
+                    animationDuration={4000}
+                    animationEasing="ease-out"
+                  />
+                </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Distribution Pie Chart */}
-          <div className="border border-terminal-border p-6 rounded-sm bg-[#1a1a1a] hover:border-terminal-text/30 transition-colors animate-fadeInUp" style={{ animationDelay: '3500ms', animationDuration: '1s' }}>
-            <h3 className="text-terminal-text font-semibold mb-6 uppercase tracking-wider text-sm">
-              TPV Distribution by {currencyDistribution.length > 0 ? 'Currency' : 'Country'}
-            </h3>
-            <ResponsiveContainer width="100%" height={300}>
+          <Card className="bg-[#1a1a1a] animate-fadeInUp" style={{ animationDelay: '3500ms', animationDuration: '1s' }}>
+            <CardHeader>
+              <CardTitle className="text-terminal-text font-semibold uppercase tracking-wider text-sm">
+                TPV Distribution by {currencyDistribution.length > 0 ? 'Currency' : 'Country'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
                   data={distributionData}
@@ -265,7 +321,7 @@ export function DashboardPage() {
                   animationDuration={4000}
                   animationEasing="ease-out"
                 >
-                  {distributionData.map((entry, index) => (
+                  {distributionData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -277,8 +333,9 @@ export function DashboardPage() {
                   }}
                 />
               </PieChart>
-            </ResponsiveContainer>
-          </div>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </TerminalLayout>

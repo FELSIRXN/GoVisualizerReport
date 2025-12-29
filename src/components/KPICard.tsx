@@ -1,4 +1,5 @@
 import { useCountUp } from '../hooks/useCountUp';
+import { Card, CardContent } from './ui/card';
 
 interface KPICardProps {
   label: string;
@@ -33,16 +34,21 @@ export function KPICard({ label, value, unit, subtitle, isCurrency = true, delay
   };
 
   return (
-    <div className="border border-terminal-border bg-[#1a1a1a] p-6 rounded-sm hover:border-terminal-text/50 transition-colors shadow-sm animate-fadeInUp" style={{ animationDelay: `${delay}ms` }}>
-      <div className="text-sm text-terminal-text/60 uppercase tracking-wider mb-2 font-medium">{label}</div>
-      <div className="text-3xl font-bold text-terminal-text font-mono mb-1">
-        {formatValue(animatedValue)}
-        {unit && <span className="text-xl ml-1 text-terminal-text/60">{unit}</span>}
-      </div>
-      {subtitle && (
-        <div className="text-xs text-terminal-text/40 mt-2">{subtitle}</div>
-      )}
-    </div>
+    <Card 
+      className="bg-[#1a1a1a] animate-fadeInUp"
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <CardContent className="p-6">
+        <div className="text-sm text-terminal-text/60 uppercase tracking-wider mb-2 font-medium">{label}</div>
+        <div className="text-3xl font-bold text-terminal-text font-mono mb-1">
+          {formatValue(animatedValue)}
+          {unit && <span className="text-xl ml-1 text-terminal-text/60">{unit}</span>}
+        </div>
+        {subtitle && (
+          <div className="text-xs text-terminal-text/40 mt-2">{subtitle}</div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

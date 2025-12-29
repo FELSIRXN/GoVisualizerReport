@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Upload, File, X, Loader2 } from 'lucide-react';
 import { useDataStore } from '../store/useDataStore';
 import { detectFileType } from '../utils/fileParser';
+import { Card, CardContent } from './ui/card';
+import { Button } from './ui/button';
+import { Progress } from './ui/progress';
+import { cn } from '../lib/utils';
 
 export function FileUploader() {
   const [isDragging, setIsDragging] = useState(false);
@@ -55,85 +59,98 @@ export function FileUploader() {
 
   return (
     <div className="space-y-6">
-      <div
+      <Card
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`
-          border-2 border-dashed rounded-lg p-12 text-center transition-colors
-          ${isDragging 
+        className={cn(
+          "border-2 border-dashed p-12 text-center transition-colors cursor-pointer",
+          isDragging 
             ? 'border-terminal-text bg-white/5' 
-            : 'border-terminal-border hover:border-terminal-text/50'
-          }
-        `}
+            : 'hover:border-terminal-text/50'
+        )}
       >
-        <Upload className="mx-auto h-12 w-12 text-terminal-text mb-4" />
-        <p className="text-terminal-text mb-2">
-          Drag and drop CSV or XLSX files here, or
-        </p>
-        <label className="cursor-pointer">
-          <span className="text-terminal-text hover:underline">browse files</span>
-          <input
-            type="file"
-            multiple
-            accept=".csv,.xlsx,.xls"
-            onChange={handleFileSelect}
-            className="hidden"
-          />
-        </label>
-        <p className="text-sm text-terminal-text/50 mt-4">
-          Supports multiple file uploads. Files will be consolidated automatically.
-        </p>
-      </div>
+        <CardContent className="p-0">
+          <Upload className="mx-auto h-12 w-12 text-terminal-text mb-4" />
+          <p className="text-terminal-text mb-2">
+            Drag and drop CSV or XLSX files here, or
+          </p>
+          <label className="cursor-pointer">
+            <span className="text-terminal-text hover:underline">browse files</span>
+            <input
+              type="file"
+              multiple
+              accept=".csv,.xlsx,.xls"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+          </label>
+          <p className="text-sm text-terminal-text/50 mt-4">
+            Supports multiple file uploads. Files will be consolidated automatically.
+          </p>
+        </CardContent>
+      </Card>
 
       {selectedFiles.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-4">
           <h3 className="text-terminal-text font-semibold">Selected Files:</h3>
           <div className="space-y-2">
             {selectedFiles.map((file, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-3 bg-[#1a1a1a] border border-terminal-border rounded hover:border-terminal-text/30 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <File className="h-4 w-4 text-terminal-text" />
-                  <span className="text-sm text-terminal-text">{file.name}</span>
-                  <span className="text-xs text-terminal-text/50">
-                    ({(file.size / 1024).toFixed(2)} KB)
-                  </span>
-                </div>
-                <button
-                  onClick={() => removeFile(index)}
-                  className="text-terminal-text/50 hover:text-terminal-text transition-colors"
-                  disabled={isLoading}
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
+              <Card key={index} className="bg-[#1a1a1a]">
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <File className="h-4 w-4 text-terminal-text" />
+                      <span className="text-sm text-terminal-text">{file.name}</span>
+                      <span className="text-xs text-terminal-text/50">
+                        ({(file.size / 1024).toFixed(2)} KB)
+                      </span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeFile(index)}
+                      disabled={isLoading}
+                      className="h-8 w-8"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
-          <button
+          {isLoading && (
+            <div className="space-y-2">
+              <Progress value={undefined} className="w-full" />
+              <p className="text-sm text-terminal-text/60 text-center">Processing files...</p>
+            </div>
+          )}
+          <Button
             onClick={handleUpload}
             disabled={isLoading || selectedFiles.length === 0}
-            className="w-full bg-white text-black font-semibold py-3 px-6 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+            className="w-full"
+            size="lg"
           >
             {isLoading ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 Processing...
               </>
             ) : (
               'Process Files'
             )}
-          </button>
+          </Button>
         </div>
       )}
 
       {error && (
-        <div className="p-4 bg-red-900/20 border border-red-500/50 rounded text-red-400">
-          <p className="font-semibold">Error:</p>
-          <p className="text-sm">{error}</p>
-        </div>
+        <Card className="bg-red-900/20 border-red-500/50">
+          <CardContent className="p-4">
+            <p className="font-semibold text-red-400">Error:</p>
+            <p className="text-sm text-red-400">{error}</p>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

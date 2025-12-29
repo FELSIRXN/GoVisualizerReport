@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { PaymentRecord, ConsolidatedData, Metrics, MonthlyAggregation, EntityPerformance, DistributionData } from '../types';
+import { PaymentRecord, Metrics, MonthlyAggregation, EntityPerformance, DistributionData } from '../types';
 import { parseFile } from '../utils/fileParser';
 import { consolidateData } from '../utils/dataNormalizer';
 import { fetchExchangeRates, ExchangeRates } from '../services/currencyService';
@@ -19,6 +19,8 @@ interface DataStore {
   reset: () => void;
   getMonthlyAggregations: () => MonthlyAggregation[];
   getTopEntities: (limit?: number) => EntityPerformance[];
+  getTopMerchants: (limit?: number) => EntityPerformance[];
+  getTopChannels: (limit?: number) => EntityPerformance[];
   getTPVDistribution: (by: 'currency' | 'country') => DistributionData[];
 }
 
@@ -200,8 +202,6 @@ export const useDataStore = create<DataStore>((set, get) => ({
              date = new Date(`${parts[1]} 1, ${year}`);
            }
         }
-      } else if (val instanceof Date) {
-        date = val;
       }
       
       if (date && !isNaN(date.getTime())) {
@@ -231,13 +231,67 @@ export const useDataStore = create<DataStore>((set, get) => ({
     const entityMap = new Map<string, { tpv: number; netRevenue: number }>();
     
     processedData.forEach(record => {
-      const entityName = record.company || record.channel || 'Unknown';
+      const entityName = record.company || record.channel;
+      if (!entityName) return; // Skip records without entity name
+      
       const existing = entityMap.get(entityName) || { tpv: 0, netRevenue: 0 };
       entityMap.set(entityName, {
         tpv: existing.tpv + (record.tpv || 0),
         netRevenue: existing.netRevenue + (record.netRevenue || 0),
       });
     });
+    
+    return Array.from(entityMap.entries())
+      .map(([name, data]) => ({
+        name,
+        ...data,
+      }))
+      .sort((a, b) => b.tpv - a.tpv)
+      .slice(0, limit);
+  },
+
+  getTopMerchants: (limit = 10) => {
+    const { processedData } = get();
+    const entityMap = new Map<string, { tpv: number; netRevenue: number }>();
+    
+    processedData
+      .filter(record => record.sourceType === 'merchant')
+      .forEach(record => {
+        const entityName = record.company;
+        if (!entityName) return; // Skip records without company name
+        
+        const existing = entityMap.get(entityName) || { tpv: 0, netRevenue: 0 };
+        entityMap.set(entityName, {
+          tpv: existing.tpv + (record.tpv || 0),
+          netRevenue: existing.netRevenue + (record.netRevenue || 0),
+        });
+      });
+    
+    return Array.from(entityMap.entries())
+      .map(([name, data]) => ({
+        name,
+        ...data,
+      }))
+      .sort((a, b) => b.tpv - a.tpv)
+      .slice(0, limit);
+  },
+
+  getTopChannels: (limit = 10) => {
+    const { processedData } = get();
+    const entityMap = new Map<string, { tpv: number; netRevenue: number }>();
+    
+    processedData
+      .filter(record => record.sourceType === 'channel')
+      .forEach(record => {
+        const entityName = record.channel;
+        if (!entityName) return; // Skip records without channel name
+        
+        const existing = entityMap.get(entityName) || { tpv: 0, netRevenue: 0 };
+        entityMap.set(entityName, {
+          tpv: existing.tpv + (record.tpv || 0),
+          netRevenue: existing.netRevenue + (record.netRevenue || 0),
+        });
+      });
     
     return Array.from(entityMap.entries())
       .map(([name, data]) => ({

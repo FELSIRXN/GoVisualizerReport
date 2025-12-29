@@ -5,6 +5,8 @@ import { useDataStore } from '../store/useDataStore';
 import { ArrowLeft } from 'lucide-react';
 import { AnimatedValue } from '../components/AnimatedValue';
 import { PaymentRecord, Metrics, MonthlyAggregation } from '../types';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 
 export function ReportPage() {
   const navigate = useNavigate();
@@ -125,8 +127,6 @@ export function ReportPage() {
             date = new Date(`${parts[1]} 1, ${year}`);
           }
         }
-      } else if (val instanceof Date) {
-        date = val;
       }
       
       if (date && !isNaN(date.getTime())) {
@@ -160,18 +160,21 @@ export function ReportPage() {
     <TerminalLayout>
       <div className="space-y-8">
         <div className="flex items-center justify-between mb-6 animate-fadeInUp" style={{ animationDelay: '0ms', animationDuration: '1s' }}>
-          <button
+          <Button
+            variant="outline"
             onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 px-4 py-2 border border-terminal-border text-terminal-text/80 hover:bg-white/5 transition-colors rounded-sm text-sm font-medium"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
-          </button>
+          </Button>
         </div>
 
         {/* Executive Summary */}
-        <div className="border border-terminal-border p-6 rounded-sm bg-[#1a1a1a] hover:border-terminal-text/30 transition-colors animate-fadeInUp" style={{ animationDelay: '200ms', animationDuration: '1s' }}>
-          <h2 className="text-xl font-bold text-terminal-text mb-4 uppercase tracking-wider">Executive Summary</h2>
+        <Card className="bg-[#1a1a1a] animate-fadeInUp" style={{ animationDelay: '200ms', animationDuration: '1s' }}>
+          <CardHeader>
+            <CardTitle className="text-xl font-bold text-terminal-text uppercase tracking-wider">Executive Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
           <div className="space-y-3 text-terminal-text/80 font-mono text-sm leading-relaxed">
             <p className="animate-fadeInUp" style={{ animationDelay: '400ms', animationDuration: '0.8s' }}>
               <span className="text-terminal-text/60">[INFO]</span> Total volume for the period was{' '}
@@ -215,38 +218,50 @@ export function ReportPage() {
               </p>
             )}
           </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Key Findings */}
-        <div className="border border-terminal-border p-6 rounded-sm bg-[#1a1a1a] hover:border-terminal-text/30 transition-colors animate-fadeInUp" style={{ animationDelay: '1800ms', animationDuration: '1s' }}>
-          <h2 className="text-xl font-bold text-terminal-text mb-4 uppercase tracking-wider">Key Findings</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="border border-terminal-border p-4 rounded-sm hover:border-terminal-text/30 transition-colors animate-fadeInUp" style={{ animationDelay: '2000ms', animationDuration: '0.8s' }}>
-              <h3 className="text-terminal-text/80 font-semibold mb-2 text-xs uppercase">Top Performing Month</h3>
-              <p className="text-terminal-text/60 text-sm mb-1">Month: {topMonth.month}</p>
-              <p className="text-white font-mono text-xl font-bold">
-                <AnimatedValue value={topMonth.tpv} format={formatCurrency} delay={2800} />
-              </p>
-              <p className="text-terminal-text/40 text-xs mt-2">
-                Net Revenue: <AnimatedValue value={topMonth.netRevenue} format={formatCurrency} delay={3000} />
-              </p>
+        <Card className="bg-[#1a1a1a] animate-fadeInUp" style={{ animationDelay: '1800ms', animationDuration: '1s' }}>
+          <CardHeader>
+            <CardTitle className="text-xl font-bold text-terminal-text uppercase tracking-wider">Key Findings</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="animate-fadeInUp" style={{ animationDelay: '2000ms', animationDuration: '0.8s' }}>
+                <CardContent className="p-4">
+                  <h3 className="text-terminal-text/80 font-semibold mb-2 text-xs uppercase">Top Performing Month</h3>
+                  <p className="text-terminal-text/60 text-sm mb-1">Month: {topMonth.month}</p>
+                  <p className="text-white font-mono text-xl font-bold">
+                    <AnimatedValue value={topMonth.tpv} format={formatCurrency} delay={2800} />
+                  </p>
+                  <p className="text-terminal-text/40 text-xs mt-2">
+                    Net Revenue: <AnimatedValue value={topMonth.netRevenue} format={formatCurrency} delay={3000} />
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="animate-fadeInUp" style={{ animationDelay: '2200ms', animationDuration: '0.8s' }}>
+                <CardContent className="p-4">
+                  <h3 className="text-terminal-text/80 font-semibold mb-2 text-xs uppercase">Lowest Performing Month</h3>
+                  <p className="text-terminal-text/60 text-sm mb-1">Month: {lowestMonth.month}</p>
+                  <p className="text-white font-mono text-xl font-bold">
+                    <AnimatedValue value={lowestMonth.tpv} format={formatCurrency} delay={3200} />
+                  </p>
+                  <p className="text-terminal-text/40 text-xs mt-2">
+                    Net Revenue: <AnimatedValue value={lowestMonth.netRevenue} format={formatCurrency} delay={3400} />
+                  </p>
+                </CardContent>
+              </Card>
             </div>
-            <div className="border border-terminal-border p-4 rounded-sm hover:border-terminal-text/30 transition-colors animate-fadeInUp" style={{ animationDelay: '2200ms', animationDuration: '0.8s' }}>
-              <h3 className="text-terminal-text/80 font-semibold mb-2 text-xs uppercase">Lowest Performing Month</h3>
-              <p className="text-terminal-text/60 text-sm mb-1">Month: {lowestMonth.month}</p>
-              <p className="text-white font-mono text-xl font-bold">
-                <AnimatedValue value={lowestMonth.tpv} format={formatCurrency} delay={3200} />
-              </p>
-              <p className="text-terminal-text/40 text-xs mt-2">
-                Net Revenue: <AnimatedValue value={lowestMonth.netRevenue} format={formatCurrency} delay={3400} />
-              </p>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Metric Tables */}
-        <div className="border border-terminal-border p-6 rounded-sm bg-[#1a1a1a] hover:border-terminal-text/30 transition-colors animate-fadeInUp" style={{ animationDelay: '2400ms', animationDuration: '1s' }}>
-          <h2 className="text-xl font-bold text-terminal-text mb-4 uppercase tracking-wider">Consolidated Metrics</h2>
+        <Card className="bg-[#1a1a1a] animate-fadeInUp" style={{ animationDelay: '2400ms', animationDuration: '1s' }}>
+          <CardHeader>
+            <CardTitle className="text-xl font-bold text-terminal-text uppercase tracking-wider">Consolidated Metrics</CardTitle>
+          </CardHeader>
+          <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse font-mono text-sm">
               <thead>
@@ -313,12 +328,16 @@ export function ReportPage() {
               </tbody>
             </table>
           </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Monthly Breakdown */}
         {monthlyData.length > 0 && (
-          <div className="border border-terminal-border p-6 rounded-sm bg-[#1a1a1a] hover:border-terminal-text/30 transition-colors animate-fadeInUp" style={{ animationDelay: '4400ms', animationDuration: '1s' }}>
-            <h2 className="text-xl font-bold text-terminal-text mb-4 uppercase tracking-wider">Monthly Breakdown</h2>
+          <Card className="bg-[#1a1a1a] animate-fadeInUp" style={{ animationDelay: '4400ms', animationDuration: '1s' }}>
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-terminal-text uppercase tracking-wider">Monthly Breakdown</CardTitle>
+            </CardHeader>
+            <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse font-mono text-sm">
                 <thead>
@@ -351,13 +370,17 @@ export function ReportPage() {
                 </tbody>
               </table>
             </div>
-          </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Merchant Performance Section */}
         {merchantData.length > 0 && (
-          <div className="border border-terminal-border p-6 rounded-sm bg-[#1a1a1a] hover:border-terminal-text/30 transition-colors animate-fadeInUp" style={{ animationDelay: '6000ms', animationDuration: '1s' }}>
-            <h2 className="text-xl font-bold text-terminal-text mb-4 uppercase tracking-wider">Merchant Performance</h2>
+          <Card className="bg-[#1a1a1a] animate-fadeInUp" style={{ animationDelay: '6000ms', animationDuration: '1s' }}>
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-terminal-text uppercase tracking-wider">Merchant Performance</CardTitle>
+            </CardHeader>
+            <CardContent>
             <div className="space-y-6">
               {/* Merchant Metrics Table */}
               <div className="overflow-x-auto">
@@ -447,13 +470,17 @@ export function ReportPage() {
                 </div>
               )}
             </div>
-          </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Channel Performance Section */}
         {channelData.length > 0 && (
-          <div className="border border-terminal-border p-6 rounded-sm bg-[#1a1a1a] hover:border-terminal-text/30 transition-colors animate-fadeInUp" style={{ animationDelay: '8000ms', animationDuration: '1s' }}>
-            <h2 className="text-xl font-bold text-terminal-text mb-4 uppercase tracking-wider">Channel Performance</h2>
+          <Card className="bg-[#1a1a1a] animate-fadeInUp" style={{ animationDelay: '8000ms', animationDuration: '1s' }}>
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-terminal-text uppercase tracking-wider">Channel Performance</CardTitle>
+            </CardHeader>
+            <CardContent>
             <div className="space-y-6">
               {/* Channel Metrics Table */}
               <div className="overflow-x-auto">
@@ -543,7 +570,8 @@ export function ReportPage() {
                 </div>
               )}
             </div>
-          </div>
+            </CardContent>
+          </Card>
         )}
       </div>
     </TerminalLayout>
